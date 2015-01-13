@@ -8,10 +8,6 @@ describe Board do
 	describe '#render' do
 		it "should render four response pegs" do
 		end
-
-		it "should render 'white' pegs for correct color,  wrong postition"
-		it "should render 'black' pegs for correct color, correct postition"
-		it "should render 'X' pegs for wrong color, wrong position"
 		it "should render 'You Win!' when a player wins"
 		it "should render 'You are a loser' when the player loses"
 	end

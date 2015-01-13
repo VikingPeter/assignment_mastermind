@@ -47,13 +47,19 @@
 # 		stop loop
 # 	else
 # 		Keep looping [Mastermind]
-# NOTE: the board holds the guesses and checks them against the code
-# then returns the result array.
+# NOTE: the RESULT holds the guesses and checks them against the code
+# then returns the result array. The render function renders this result.
+# Should the board render in full with all results each round?
+
 
 require 'pry'
 
 # this module is for all of the CLI formatting and coloring mixins
 module Formats
+
+	# create array of possible colors from which to choose
+	POSSIBLE_COLORS = %w(R G B Y C P)
+
 
 	def colorize(peg)
 		text = peg
@@ -84,36 +90,53 @@ class Mastermind
 
 	include Formats
 
+	attr_reader :board, :code_maker, :code_breaker, :turns
+
 	def initialize
-		# create array of possible colors from which to choose
-		@possible_colors = %w(R G B Y C P)
+
 		# set up the board
 		@board = Board.new
-		# set up the code
+
+		# create the secret code
 		@code_maker = CodeMaker.new
-		@code_maker.code(@possible_colors)
 
 		# set up the code_breaker
 		@code_breaker = CodeBreaker.new
 
-		# create the turns variable
+		# create the turns co unter
 		@turns = 12
+
 	end
 
 	def play
-		# render the initial message
-		puts "\nWelcome to Mastermind!"
-		loop do
-			puts "\nstarting game loop"
+
+		welcome_player
+		explain_rules
+
+		loop do # refactor to a while that automatically ends in loss?
+			puts "Starting game loop"
 			# render the board
-			@board.render
-			# ask for a guess
-			@code_breaker.get_guess
+			board.render
+			# check the guess against the code
+			board.generate_result(@code_breaker.guess, @code_maker.code) # write this in class Board
 			# break the loop if the game ends
 			check_game_end
 			# remove one from the turns counter
-			@turns -= 1
+			turns -= 1
 		end
+	end
+
+	def welcome_player
+		# render the initial message
+		return "\nWelcome to Mastermind!"
+	end
+
+	def explain_rules
+		puts "Try to beat the computer by guessing the secret code!"
+		# display the message prompting first guess
+		puts "You can choose a combination of four from:\n[\e[31mR:RED\e[0m][\e[32mG:GREEN\e[0m][\e[33mY:YELLOW\e[0m][\e[34mB:BLUE\e[0m][\e[36mC:CYAN\e[0m][\e[35mP:PURPLE\e[0m]"
+		puts "in the form of #{colorize('R')}#{colorize('G')}#{colorize('Y')}#{colorize('R')}"
+		puts "What is your guess?"
 	end
 
 	def check_game_end
@@ -121,46 +144,46 @@ class Mastermind
 	end
 
 	def check_victory
-		# if board says guess matches code
-		if (@board.check_guess)
-			# render win scenario
-			puts "You have won!"
-		end
+		# if board says victory is acheived
+		# render win scenario
+		return "Oh. You won... Congrats, I guess" if board.win?
+
 	end
 
 	def check_loss
 		# if run out of turns
-		if (@turns <= 0)
-			# render lose scenario
-			puts "You have lost the game"
-		end
+		# render lose scenario
+		return "You have lost the game" if (turns <= 0)
 	end
 
 end
 
 # the game state
 class Board
+
 	include Formats
-	attr_accessor :board
+
+	attr_reader :result
 
 	def initialize
-		# create an empty array to hold the result of the checked guess
-		@board = Array.new(4)
-
+		# create an empty array to hold the result of each checked guess
+		@board = Array.new(12){Array.new(4)}
 	end
 
 	def render
 		puts "Board rendered"
-		# loop through the board array
-		@board.each do |peg|
-			# display the result using colorize
-			"|#{colorize(peg)}|"
-		end
+		# loop through the board array and display the result using colorize
+			unless (@board[0].include?(nil))
+				@board.each do |result|
+					result.each { |peg| puts "|#{colorize(peg)}|" }
+				end
+			end
 	end
 
 
-	def check_guess
-		# for each peg in guess against code
+	def generate_result(guess, code)
+		# for each peg in guess
+			# compare against secret code
 			# if both both color and position match
 				# save WHITE peg in that position
 			# if only color matches any other position
@@ -168,8 +191,11 @@ class Board
 			# else
 				# save an X in that position
 	end
-	# check_win
+
+	def win?
+		return false
 		# does result have all_white_pegs?
+	end
 
 	# all_white_pegs?
 		# check if each element in result is white
@@ -179,55 +205,64 @@ end
 
 # the human player
 class CodeBreaker
+
 	include Formats
+
 	attr_accessor :guess
 
 	def initialize
 	end
 
-	def get_guess
+	def guess
+		"guess"
 		loop do
-			ask_for_guess
-			if (validate_guess_format(@guess))
-				@guess = @guess.split(//) # careful there bessy
-				if @board.check_guess(@guess) # write this in class Board
-					break
-				end
+			"loop started"
+			guess = ask_for_guess
+			if (validate_guess_format(guess))
+				return guess
+			else
+				return "You need to format as four sequential colors"
 			end
+
 		end
 	end
 
 	def ask_for_guess
-		# display the message prompting guess
-		puts "What is your guess?\nYou can choose a combination of four from:\n[\e[31mR:RED\e[0m][\e[32mG:GREEN\e[0m][\e[33mY:YELLOW\e[0m][\e[34mB:BLUE\e[0m][\e[36mC:CYAN\e[0m][\e[35mP:PURPLE\e[0m]"
-		puts "In the form of #{colorize('R')}#{colorize('G')}#{colorize('Y')}#{colorize('R')}"
 		# get the guess
-		@guess = gets.strip
+		guess = gets.strip
+		return guess
 	end
 
 	def validate_guess_format(guess)
 		# unless guess is proper format
-		unless guess.length == 4 && check_colors_format(guess)
+		unless (guess.length == 4) && (check_colors_format(guess, POSSIBLE_COLORS))
 			# display error
 			return "You have the wrong format"
 		end
 	end
 
-	def check_colors_format(guess)
+	def check_colors_format(guess, colors)
+		guess.split(//).all? do |peg|
+			colors.include?(peg)
+		end
 	end
 
 end
 
 # the computer that creates the code
 class CodeMaker
+
 	include Formats
+
 	attr_reader :code
 
 	def initialize
 
+		@code = create_secret_code(POSSIBLE_COLORS)
+
 	end
 
-	def code(possible_colors)
+	def create_secret_code(possible_colors)
 		# set code to a random set of four pegs
 		random_code = []
 		4.times do
@@ -238,5 +273,5 @@ class CodeMaker
 end
 
 # run the game from the file
-m = Mastermind.new
-m.play
+# m = Mastermind.new
+# m.play
