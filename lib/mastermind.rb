@@ -79,7 +79,7 @@ module Formats
 			else
 				"X"
 		end
-		return "\e[#{color_code}m#{text}\e[0m"
+		print "\e[#{color_code}m#{text}\e[0m"
 	end
 
 
@@ -103,7 +103,7 @@ class Mastermind
 		# set up the code_breaker
 		@code_breaker = CodeBreaker.new
 
-		# create the turns co unter
+		# create the turns counter
 		@turns = 12
 
 	end
@@ -122,13 +122,13 @@ class Mastermind
 			# break the loop if the game ends
 			check_game_end
 			# remove one from the turns counter
-			turns -= 1
+			@turns -= 1
 		end
 	end
 
 	def welcome_player
 		# render the initial message
-		return "\nWelcome to Mastermind!"
+		return "Welcome to Mastermind!"
 	end
 
 	def explain_rules
@@ -171,9 +171,9 @@ class Board
 	end
 
 	def render
-		puts "Board rendered"
 		# loop through the board array and display the result using colorize
 			unless (@board[0].include?(nil))
+				puts "Board rendered"
 				@board.each do |result|
 					result.each { |peg| puts "|#{colorize(peg)}|" }
 				end
@@ -181,25 +181,36 @@ class Board
 	end
 
 
+	# this should definitely be broken into more methods
 	def generate_result(guess, code)
+		@result = Array.new(4)
 		# for each peg in guess
+		guess.each_with_index do |guess_peg, guess_index|
 			# compare against secret code
-			# if both both color and position match
-				# save WHITE peg in that position
-			# if only color matches any other position
-				# save a BLACK peg in that postion
-			# else
-				# save an X in that position
+			code.each_with_index do |code_peg, code_index|
+				# if both color(peg) and position(index) match
+				if ((guess_peg == code_peg) && (guess_index == code_index))
+					# save WHITE(W) peg in that position
+					@result[code_index] = "W"
+				# if only color matches any other position
+				elsif ((guess_peg == code_peg) && (guess_index != code_index))
+					# save a BLACK(M) peg in that postion
+					@result[guess_index] = "M"
+				else
+					# put an X in that position
+					@result[guess_index] = "X"
+				end
+			end
+		end
+		@board.unshift(@result)
 	end
 
 	def win?
-		return false
 		# does result have all_white_pegs?
+		@result.all? do |peg|
+			peg == "W"
+		end
 	end
-
-	# all_white_pegs?
-		# check if each element in result is white
-
 
 end
 
@@ -217,11 +228,13 @@ class CodeBreaker
 		"guess"
 		loop do
 			"loop started"
+			# this is terrible naming - I am is confused
 			guess = ask_for_guess
+
 			if (validate_guess_format(guess))
-				return guess
+				return guess.split(//).each(&:upcase)
 			else
-				return "You need to format as four sequential colors"
+				puts "You need to format as four sequential colors"
 			end
 
 		end
@@ -235,10 +248,7 @@ class CodeBreaker
 
 	def validate_guess_format(guess)
 		# unless guess is proper format
-		unless (guess.length == 4) && (check_colors_format(guess, POSSIBLE_COLORS))
-			# display error
-			return "You have the wrong format"
-		end
+		(guess.size == 4) && (check_colors_format(guess, POSSIBLE_COLORS))
 	end
 
 	def check_colors_format(guess, colors)
@@ -273,5 +283,5 @@ class CodeMaker
 end
 
 # run the game from the file
-# m = Mastermind.new
-# m.play
+m = Mastermind.new
+m.play
