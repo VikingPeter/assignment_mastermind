@@ -6,18 +6,19 @@ describe Board do
 	end
 
 	describe '#render' do
-		it "should render four response pegs" do
-		end
-		it "should render 'You Win!' when a player wins"
-		it "should render 'You are a loser' when the player loses"
-	end
-
-	describe "#colorize" do
-		it "should return the proper ANSI formated string"
-	end
+		it "should render the board to output"	end
 
 	describe "#check_guess" do
 		it "should check each peg in the guess"
 	end
+
+	describe "#generate_result" do
+		it "should generate the result of the round"
+	end
+
+	describe "#win?" do
+	  it "should check the result for a win"
+	end
+
 
 end
