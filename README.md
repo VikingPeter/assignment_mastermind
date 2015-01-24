@@ -28,3 +28,39 @@ What can you refactor in your existing code to make sure each class or method on
 Bonus: Saving
 
 Give the user the option each turn to either enter a move or save their game (to a file). When the game begins, give the user the option to start a new game or open the saved game.
+
+TODO:
+
+dynamic ANSI colored pegs for when the user inputs
+CLI green load with an animation and a music file and VFX
+
+########################################
+
+V 1.0 Gameplay:
+
+Game initializes with a code and a code_breaker
+Computer generates code
+Computer prompts code_breaker for a guess
+The guess is tested against the code
+win is checked
+  win is all colors and positions match
+the response is rendered
+repeat until games > 12 or win
+
+Pseudo Code
+Set up the game [Mastermind]
+	create a @board [Board]
+	create a @code [CodeMaker]
+	create a @code_breaker [CodeBreaker]
+Start the game loop [Mastermind]
+	render the board [Board]
+	Ask for player to guess and validate guess
+	If game ends [Mastermind]
+		render the victory/ lose message
+		stop loop
+	else
+		Keep looping [Mastermind]
+
+NOTE: the RESULT holds the guesses and checks them against the code
+then returns the result array. The render function renders this result.
+Should the board render in full with all results each round?
