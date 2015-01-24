@@ -45,29 +45,16 @@ describe Board do
 		end
 
 		it "generates the result for a wrong color" do
-			guess_1 = ["C","R","B","Y"]
+			guess_1 = ["C","G","B","Y"]
 			guess_2 = ["R","C","B","Y"]
 			guess_3 = ["R","G","C","Y"]
 			guess_4 = ["R","G","B","C"]
-			expect(subject.generate_result(guess_1, @code)).to eq(["X","R","B","Y"])
+			expect(subject.generate_result(guess_1, @code)).to eq(["X","G","B","Y"])
 			expect(subject.generate_result(guess_2, @code)).to eq(["R","X","B","Y"])
 			expect(subject.generate_result(guess_3, @code)).to eq(["R","G","X","Y"])
 			expect(subject.generate_result(guess_4, @code)).to eq(["R","G","B","X"])
 		end
 
-		it "handles repeats" do
-			code = ["P", "G", "P", "B"]
-			guess_0 = ["P","G","P","B"]
-			guess_1 = ["P","C","C","C"]
-			guess_2 = ["C","C","P","C"]
-			guess_3 = ["P","C","P","C"]
-			guess_4 = ["P","C","P","P"]
-			expect(subject.generate_result(guess_0, code)).to eq(["P","G","P","B"])
-			expect(subject.generate_result(guess_1, code)).to eq(["P","G","P","B"])
-			expect(subject.generate_result(guess_2, code)).to eq(["R","X","B","Y"])
-			expect(subject.generate_result(guess_3, code)).to eq(["R","G","X","Y"])
-			expect(subject.generate_result(guess_4, code)).to eq(["R","G","B","X"])
-		end
 	end
 
 	describe "#win?" do

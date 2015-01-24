@@ -13,8 +13,7 @@ class CodeBreaker
 	def ask_for_guess
 		loop do
 			# this is terrible naming - I am is confused
-			response = gets.strip
-
+			response = $stdin.gets.strip
 			if (validate_response_format(response))
 				@guess = response.split(//).map(&:upcase)
 				break
@@ -24,6 +23,15 @@ class CodeBreaker
 		end
 	end
 
+	# implement this in Mastermind
+	# def check_quit(response)
+	# 	response.length.times do |i|
+	# 		response[i].downcase
+	# 	end
+	# 	response == "q" ||
+	# 	response == "quit" ||
+	# 	response == "exit"
+	# end
 
 	def validate_response_format(response)
 		# unless response is proper format
